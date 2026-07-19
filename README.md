@@ -71,6 +71,24 @@ BloxEnv
 
 See [configuration documentation](docs/CONFIG.md) and the [roadmap](docs/ROADMAP.md).
 
+## One-line install
+
+After these installer files are pushed to this repository:
+
+### macOS and Linux
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/fhwifmw/BloxEnv/main/install.sh | bash
+```
+
+### Windows PowerShell
+
+```powershell
+irm https://raw.githubusercontent.com/fhwifmw/BloxEnv/main/install.ps1 | iex
+```
+
+The installer builds BloxEnv from source, installs it to a user-owned directory, and adds that directory to `PATH`. CMake, Git, and a C++ compiler are still required.
+
 ## Build
 
 BloxEnv uses CMake and fetches the pinned Luau `0.730` source automatically.
@@ -81,7 +99,7 @@ BloxEnv uses CMake and fetches the pinned Luau `0.730` source automatically.
 git clone https://github.com/YOUR_USERNAME/BloxEnv.git
 cd BloxEnv
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
-cmake --build build --parallel
+cmake --build build --target bloxenv --parallel
 ./build/bloxenv examples/basic/main.client.luau
 ```
 
@@ -97,7 +115,7 @@ sudo cmake --install build
 git clone https://github.com/YOUR_USERNAME/BloxEnv.git
 cd BloxEnv
 cmake -S . -B build
-cmake --build build --config Release --parallel
+cmake --build build --config Release --target bloxenv --parallel
 .\build\Release\bloxenv.exe examples\basic\main.client.luau
 ```
 
