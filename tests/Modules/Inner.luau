@@ -1,0 +1,3 @@
+return {
+    scriptName = script.Name,
+}
