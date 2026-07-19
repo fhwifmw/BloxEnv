@@ -1,18 +1,69 @@
 # BloxEnv
 
-**Run and debug Roblox-oriented Luau outside Roblox Studio with a configurable local environment.**
+**Run Roblox-oriented Luau outside Roblox Studio with a configurable local environment.**
 
-BloxEnv is a small Luau host that installs Roblox-like globals before running a script:
+BloxEnv loads Roblox-like globals, services, datatypes, and user-defined overrides before running a Luau script.
+
+## Installation
+
+### macOS and Linux
 
 ```bash
-bloxenv path/to/main.server.luau
+curl -fsSL https://raw.githubusercontent.com/fhwifmw/BloxEnv/main/install.sh | bash
 ```
 
-Place a `bloxenv.config.luau` beside your project and replace any property, service, method, or global with ordinary Luau code.
+### Windows PowerShell
 
-> BloxEnv is a compatibility and testing runtime, not a Roblox engine emulator. It does not render, simulate Roblox physics, connect to Roblox servers, or reproduce every engine API.
+```powershell
+irm https://raw.githubusercontent.com/fhwifmw/BloxEnv/main/install.ps1 | iex
+```
 
-## Example
+The installer builds BloxEnv from source and adds it to your user `PATH`. It requires Git, CMake, and a C++ compiler.
+
+## Usage
+
+```bash
+bloxenv path/to/script.luau
+```
+
+Place a `bloxenv.config.luau` beside your project to replace globals, services, properties, and functions with ordinary Luau code. Without `--config`, BloxEnv searches upward from the target script for the nearest config file.
+
+```text
+bloxenv [options] <script.luau> [-- script arguments...]
+
+--config <path>       Use a specific config file
+--no-config           Disable config discovery
+--strict              Error on unsupported services
+--allow-outside-root  Permit require() outside the project root
+-h, --help            Show help
+-v, --version         Show version
+```
+
+Arguments after `--` are available through `BloxEnv.args`:
+
+```bash
+bloxenv main.luau -- first second
+```
+
+```luau
+print(BloxEnv.args[1]) -- first
+```
+
+## Features
+
+- Embedded Luau compiler and VM
+- Configurable `game`, `script`, services, globals, methods, and properties
+- Roblox-like `Instance`, `Enum`, signals, attributes, and parenting
+- Deterministic `task.spawn`, `task.defer`, `task.delay`, and `task.wait`
+- `Players`, `RunService`, `HttpService`, and `CollectionService` mocks
+- `Vector2`, `Vector3`, and `Color3`
+- Filesystem modules and configurable `ModuleScript` paths
+- Server, client, and Studio contexts
+- Project-root confinement for module reads
+
+See the [configuration documentation](docs/CONFIG.md) and [roadmap](docs/ROADMAP.md).
+
+## Configuration
 
 ```luau
 -- bloxenv.config.luau
@@ -39,114 +90,9 @@ return {
 }
 ```
 
-```luau
--- main.client.luau
-local Players = game:GetService("Players")
-
-print(game.PlaceId)
-print(Players:GetNameFromUserIdAsync(42))
-print(identifyexecutor())
-```
-
-```text
-123456789
-MockUser_42
-BloxEnv
-```
-
-## Current MVP features
-
-- Embedded official Luau compiler and VM
-- Nearest-config discovery (`bloxenv.config.luau`)
-- Configurable `game`, target `script`, services, globals, methods, and properties
-- `game`, `workspace`, `script`, `Instance`, `Enum`, `task`, `typeof`, `time`, and `tick`
-- Instance parenting, children, signals, attributes, cloning, and destruction
-- Deterministic `task.spawn`, `task.defer`, `task.delay`, and `task.wait`
-- Basic `Players`, `RunService`, `HttpService`, and `CollectionService`
-- Basic `Vector2`, `Vector3`, and `Color3`
-- Filesystem `require("./Module")`
-- Mock `ModuleScript` support through `SourcePath`
-- Server, client, and Studio contexts
-- Project-root confinement for module reads
-
-See [configuration documentation](docs/CONFIG.md) and the [roadmap](docs/ROADMAP.md).
-
-## One-line install
-
-After these installer files are pushed to this repository:
-
-### macOS and Linux
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/fhwifmw/BloxEnv/main/install.sh | bash
-```
-
-### Windows PowerShell
-
-```powershell
-irm https://raw.githubusercontent.com/fhwifmw/BloxEnv/main/install.ps1 | iex
-```
-
-The installer builds BloxEnv from source, installs it to a user-owned directory, and adds that directory to `PATH`. CMake, Git, and a C++ compiler are still required.
-
-## Build
-
-BloxEnv uses CMake and fetches the pinned Luau `0.730` source automatically.
-
-### macOS and Linux
-
-```bash
-git clone https://github.com/YOUR_USERNAME/BloxEnv.git
-cd BloxEnv
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
-cmake --build build --target bloxenv --parallel
-./build/bloxenv examples/basic/main.client.luau
-```
-
-Install it onto your `PATH`:
-
-```bash
-sudo cmake --install build
-```
-
-### Windows
-
-```powershell
-git clone https://github.com/YOUR_USERNAME/BloxEnv.git
-cd BloxEnv
-cmake -S . -B build
-cmake --build build --config Release --target bloxenv --parallel
-.\build\Release\bloxenv.exe examples\basic\main.client.luau
-```
-
-## CLI
-
-```text
-bloxenv [options] <script.luau> [-- script arguments...]
-
---config <path>       Use a specific config file
---no-config           Disable config discovery
---strict              Error on unsupported services
---allow-outside-root  Permit require() outside the project root
--h, --help            Show help
--v, --version         Show version
-```
-
-Without `--config`, BloxEnv starts in the target script's directory and walks upward until it finds the nearest `bloxenv.config.luau`.
-
-Arguments after `--` are available through `BloxEnv.args`:
-
-```bash
-bloxenv main.luau -- first second
-```
-
-```luau
-print(BloxEnv.args[1]) -- first
-```
-
 ## ModuleScripts
 
-A mocked `ModuleScript` needs a source path:
+Map a mocked `ModuleScript` to a local source file:
 
 ```luau
 return {
@@ -163,67 +109,57 @@ return {
 }
 ```
 
-Then normal Roblox-style code works:
+Then require it normally:
 
 ```luau
 local Utility = require(game.ReplicatedStorage.Utility)
 ```
 
-String paths also work:
+Filesystem paths also work:
 
 ```luau
 local Utility = require("./src/Utility")
 ```
 
-Module paths are restricted to the detected project root unless `--allow-outside-root` is supplied.
+## Build from source
 
-## Deterministic time
-
-BloxEnv does not sleep in real time. It advances a simulated clock to the next scheduled task:
-
-```luau
-task.delay(10, function()
-    print("ten seconds")
-end)
-
-task.wait(5)
-print(time()) -- 5
-```
-
-The whole script can still finish almost instantly on the host machine.
-
-## Status and limitations
-
-This repository is an early MVP. Current limitations include:
-
-- Partial Roblox API coverage
-- No rendering, physics, networking, DataStore backend, or engine security contexts
-- Approximate Instance/class behavior
-- No `CFrame`, `UDim2`, or JSON implementation yet
-- Mutable configurable base globals with per-script `script` environments; v0.1 is for trusted local code, not hostile-code sandboxing
-- No audited hostile-code resource limits yet
-- Config files are expected to run synchronously
-
-Unsupported functions are meant to be replaced in `bloxenv.config.luau` until native mocks are added.
-
-## Smoke test
-
-After building:
+### macOS and Linux
 
 ```bash
-./build/bloxenv tests/smoke.server.luau
+git clone https://github.com/fhwifmw/BloxEnv.git
+cd BloxEnv
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build --target bloxenv --parallel
 ```
 
-Expected output:
+### Windows
+
+```powershell
+git clone https://github.com/fhwifmw/BloxEnv.git
+cd BloxEnv
+cmake -S . -B build
+cmake --build build --config Release --target bloxenv --parallel
+```
+
+## Example
+
+```luau
+-- main.client.luau
+local Players = game:GetService("Players")
+
+print(game.PlaceId)
+print(Players:GetNameFromUserIdAsync(42))
+print(identifyexecutor())
+```
 
 ```text
-BloxEnv smoke test passed
+123456789
+MockUser_42
+BloxEnv
 ```
 
-## Luau attribution
-
-BloxEnv embeds [Luau](https://luau.org/), distributed under the MIT License. Luau is developed by Roblox and open-source contributors.
+A complete example project is available in [`examples/basic`](examples/basic).
 
 ## License
 
-BloxEnv is released under the MIT License.
+BloxEnv is released under the MIT License and embeds [Luau](https://luau.org/), which is also distributed under the MIT License.

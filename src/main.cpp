@@ -296,7 +296,7 @@ private:
             }
 
             fs::path modulePath = runtime->resolveModule(request, basePath);
-            runtime->loadChunk(readTextFile(modulePath), "@" + modulePath.generic_string());
+            runtime->loadChunk(state, readTextFile(modulePath), "@" + modulePath.generic_string());
             lua_pushstring(state, modulePath.generic_string().c_str());
             return 2;
         }
@@ -328,18 +328,29 @@ private:
         lua_setglobal(state_, "__BLOXENV_ARGS");
     }
 
-    void loadChunk(const std::string& source, const std::string& chunkName)
+    void loadChunk(lua_State* targetState, const std::string& source, const std::string& chunkName)
     {
         size_t bytecodeSize = 0;
         char* bytecode = luau_compile(source.data(), source.size(), nullptr, &bytecodeSize);
         if (!bytecode)
             throw std::runtime_error("Luau compiler returned no bytecode for " + chunkName);
 
-        int status = luau_load(state_, chunkName.c_str(), bytecode, bytecodeSize, 0);
+        int status = luau_load(targetState, chunkName.c_str(), bytecode, bytecodeSize, 0);
         std::free(bytecode);
 
         if (status != 0)
-            throw std::runtime_error(popError("Unable to compile/load " + chunkName));
+        {
+            const char* message = lua_tostring(targetState, -1);
+            std::string result = "Unable to compile/load " + chunkName + ": ";
+            result += message ? message : "unknown Luau error";
+            lua_pop(targetState, 1);
+            throw std::runtime_error(result);
+        }
+    }
+
+    void loadChunk(const std::string& source, const std::string& chunkName)
+    {
+        loadChunk(state_, source, chunkName);
     }
 
     void runSource(const std::string& source, const std::string& chunkName, int arguments, int results)
