@@ -1,5 +1,12 @@
 # BloxEnv
 
+[![Build](https://github.com/fhwifmw/BloxEnv/actions/workflows/build.yml/badge.svg)](https://github.com/fhwifmw/BloxEnv/actions/workflows/build.yml)
+[![GitHub Stars](https://img.shields.io/github/stars/fhwifmw/BloxEnv?style=flat&logo=github)](https://github.com/fhwifmw/BloxEnv/stargazers)
+[![GitHub Release](https://img.shields.io/github/v/release/fhwifmw/BloxEnv?style=flat)](https://github.com/fhwifmw/BloxEnv/releases)
+[![License](https://img.shields.io/github/license/fhwifmw/BloxEnv?style=flat)](https://github.com/fhwifmw/BloxEnv/blob/main/LICENSE)
+
+A configurable Luau runtime for executing and debugging Roblox scripts outside Roblox.
+
 **Run Roblox-oriented Luau outside Roblox Studio with a configurable local environment.**
 
 BloxEnv loads Roblox-like globals, services, datatypes, and user-defined overrides before running a Luau script.
