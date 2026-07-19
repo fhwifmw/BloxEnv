@@ -1,0 +1,8 @@
+#pragma once
+
+namespace bloxenv
+{
+inline constexpr const char* kBootstrapSource = R"BLOXENV_RUNTIME(
+@BLOXENV_BOOTSTRAP_SOURCE@
+)BLOXENV_RUNTIME";
+}
