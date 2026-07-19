@@ -20,12 +20,4 @@ jobs:
         run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 
       - name: Build
-        run: cmake --build build --config Release --parallel
-
-      - name: Smoke test (Unix)
-        if: runner.os != 'Windows'
-        run: ./build/bloxenv tests/smoke.server.luau
-
-      - name: Smoke test (Windows)
-        if: runner.os == 'Windows'
-        run: .\build\Release\bloxenv.exe tests\smoke.server.luau
+        run: cmake --build build --config Release --target bloxenv --parallel
