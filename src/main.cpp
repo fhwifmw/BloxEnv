@@ -302,14 +302,15 @@ private:
         }
         catch (const std::exception& error)
         {
-            return luaL_error(state, "%s", error.what());
+            luaL_error(state, "%s", error.what());
+            return 0;
         }
     }
 
     void registerHostGlobals()
     {
         lua_pushlightuserdata(state_, this);
-        lua_pushcclosure(state_, &Runtime::loadModuleCallback, 1);
+        lua_pushcclosure(state_, &Runtime::loadModuleCallback, "_bloxenv_loadmodule", 1);
         lua_setglobal(state_, "_bloxenv_loadmodule");
 
         lua_pushstring(state_, options_.scriptPath.generic_string().c_str());
