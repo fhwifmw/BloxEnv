@@ -1,5 +1,11 @@
 # BloxEnv
 
+[![Build](https://github.com/fhwifmw/BloxEnv/actions/workflows/build.yml/badge.svg)](https://github.com/fhwifmw/BloxEnv/actions/workflows/build.yml)
+[![Latest Release](https://img.shields.io/github/v/release/fhwifmw/BloxEnv)](https://github.com/fhwifmw/BloxEnv/releases/latest)
+[![License](https://img.shields.io/github/license/fhwifmw/BloxEnv)](https://github.com/fhwifmw/BloxEnv/blob/main/LICENSE)
+[![Stars](https://img.shields.io/github/stars/fhwifmw/BloxEnv?style=flat)](https://github.com/fhwifmw/BloxEnv/stargazers)
+[![Luau](https://img.shields.io/badge/language-Luau-blue)](https://luau.org/)
+[![Platforms](https://img.shields.io/badge/platforms-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey)](#installation)
 **Run Roblox-oriented Luau outside Roblox Studio with a configurable local environment.**
 
 BloxEnv loads Roblox-like globals, services, datatypes, and user-defined overrides before running a Luau script.
